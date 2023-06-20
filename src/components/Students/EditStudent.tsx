@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, SetStateAction, useEffect, useState } from "react";
 import { StudentProps } from "../../types/Student/student.type";
 import { StudentForm } from "../Shared/Students/StudentForm";
 import {
@@ -8,6 +8,7 @@ import {
 import { STU_LOCAL_STORAGE_KEY } from "../../utils/constants/students/common.constants";
 import { useNavigate, useParams } from "react-router-dom";
 import {
+  STU_INIT_STATE,
   SUBJECTS_HIGHER_CLASS,
   SUBJECTS_MIDDLE_CLASS,
 } from "../../utils/constants/students/students.constants";
@@ -128,14 +129,25 @@ export const EditStudent = () => {
       }
     }
   };
-
+  const resetForm = () => {
+    setCurrentStu({ ...STU_INIT_STATE });
+  };
   return (
     <div>
-      <StudentForm
-        onChange={handleInputChange}
-        onSubmit={handleUpdate}
-        selectedSub={selectedSub}
-      />
+      {currentStu && (
+        <StudentForm
+          formData={currentStu}
+          updatedFormData={(
+            updatedValue: React.SetStateAction<StudentProps | null>
+          ) => setCurrentStu(updatedValue)}
+          selSubject={selectedSub}
+          onSubmit={handleUpdate}
+          onChange={handleInputChange}
+          handleFileChange={handleFileChange}
+          resetForm={resetForm}
+          // isCreatePage={false}
+        />
+      )}
     </div>
   );
 };

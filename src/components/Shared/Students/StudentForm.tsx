@@ -1,8 +1,8 @@
 import { useLocation } from "react-router-dom";
 
 export const StudentForm = (props: any) => {
-  const location = useLocation();
-  const isCreatePage = location.pathname.includes("create");
+  // const location = useLocation();
+  // const isCreatePage = location.pathname.includes("create");
   const {
     handleSubmit,
     resetForm,
@@ -11,8 +11,10 @@ export const StudentForm = (props: any) => {
     handleChange,
     handelClassChange,
     handleFileChange,
+    isCreatePage,
   } = props;
   const { handleInputChange, handleUpdate, selectedSub } = props;
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -69,7 +71,7 @@ export const StudentForm = (props: any) => {
           </select>
         </div>
         <br />
-        {selSubject.length > 0 ? (
+        {selSubject && selSubject.length > 0 && (
           <>
             {selSubject.map((subject: string) => (
               <div key={subject}>
@@ -86,7 +88,7 @@ export const StudentForm = (props: any) => {
               </div>
             ))}
           </>
-        ) : null}
+        )}
         <div>
           <label htmlFor="profilePhoto">Profile Photo:</label>
           <input type="file" name="profilePhoto" onChange={handleFileChange} />

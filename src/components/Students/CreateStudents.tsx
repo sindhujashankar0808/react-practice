@@ -14,6 +14,7 @@ import { StudentForm } from "../Shared/Students/StudentForm";
 import { useNavigate } from "react-router-dom";
 import { ROUTERS } from "../../utils/constants/students/router.constants";
 import { STU_LOCAL_STORAGE_KEY } from "../../utils/constants/students/common.constants";
+import { validateForm } from "../../utils/helpers/validation.helpers";
 
 export const CreateStudents = () => {
   const navigate = useNavigate();
@@ -24,8 +25,10 @@ export const CreateStudents = () => {
     id: students !== null ? students.length + 1 : 1,
   });
   const [studentsList, setStudentsList] = useState<StudentProps[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
-    const students = getLocalStorage(STU_LOCAL_STORAGE_KEY);
+    const students = getLocalStorage(STU_LOCAL_STORAGE_KEY) || [];
     if (students) {
       setStudentsList(students);
     }
@@ -34,16 +37,23 @@ export const CreateStudents = () => {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     console.log("come");
-    try {
-      const updatedFormData = [formData, ...studentsList];
-      setLocalStorage("studentsList", updatedFormData);
-      setStudentsList(updatedFormData);
-      navigate(ROUTERS.home);
-    } catch (error) {
-      console.error(error);
-    }
+    validateForm(formData);
+    setTimeout(() => {
+      try {
+        const updatedFormData = [formData, ...studentsList];
+        setLocalStorage(STU_LOCAL_STORAGE_KEY, updatedFormData);
+        setStudentsList(updatedFormData);
+        navigate(ROUTERS.home);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 1000);
   };
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    console.log("come");
+
     const { name, value, type, checked } = event.target;
     if (name === "age") {
       let ageValue = parseInt(value, 10);
@@ -74,6 +84,7 @@ export const CreateStudents = () => {
     setFormData({ ...formData, [name]: value, subjects: subject });
     setSelSubject(subject);
   };
+
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const selectedImage = event.target.files[0];
@@ -97,16 +108,21 @@ export const CreateStudents = () => {
 
   return (
     <div>
-      <StudentForm
-        formData={formData}
-        setFormData={setFormData}
-        selSubject={selSubject}
-        onSubmit={handleSubmit}
-        resetForm={resetForm}
-        onChange={handleChange}
-        handelClassChange={handelClassChange}
-        handleFileChange={handleFileChange}
-      />
+      {formData && (
+        <StudentForm
+          formData={formData}
+          updatedFormData={(updatedValue: React.SetStateAction<StudentProps>) =>
+            setFormData(updatedValue)
+          }
+          selSubject={selSubject}
+          onSubmit={handleSubmit}
+          resetForm={resetForm}
+          onChange={handleChange}
+          handelClassChange={handelClassChange}
+          handleFileChange={handleFileChange}
+          isCreatePage={true}
+        />
+      )}
     </div>
   );
 };

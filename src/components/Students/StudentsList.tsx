@@ -8,11 +8,17 @@ import { STU_LOCAL_STORAGE_KEY } from "../../utils/constants/students/common.con
 import "../../style/style.css";
 const StudentsList = () => {
   const [studentslist, setStudentsList] = useState<StudentProps[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    const student = getLocalStorage(STU_LOCAL_STORAGE_KEY);
-    if (student) {
-      setStudentsList(student);
-    }
+    const listLoader = setTimeout(() => {
+      const student = getLocalStorage(STU_LOCAL_STORAGE_KEY);
+      if (student) {
+        setStudentsList(student);
+      }
+      setIsLoading(false);
+    }, 2000);
+    return () => clearTimeout(listLoader);
   }, []);
   const handleDelete = (id: number) => {
     const confirmed = window.confirm(
@@ -26,39 +32,51 @@ const StudentsList = () => {
       setLocalStorage(STU_LOCAL_STORAGE_KEY, updatedStudentList);
     }
   };
+  if (isLoading) {
+    return <div className="loader"></div>;
+  }
+
   return (
     <>
-      <h2> Submited Student list</h2>
-      <ul>
-        {studentslist.map((data: StudentProps, index: number) => (
-          <div className="card" key={index}>
-            <li>
-              {data.profilePhoto ? (
-                <div>
-                  <h4>Profile Photo:</h4>
-                  <img
-                    src={
-                      data.profilePhoto?.dataUrl ||
-                      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-                    }
-                    alt="ProfilePhoto"
-                    style={{ width: "200px" }}
-                  />
-                </div>
-              ) : null}
-              <h3>Name: {`${data.firstName} ${data.lastName}`}</h3>
-              <p>Email: {data.email}</p>
-              <p>Age: {data.age}</p>
-              <p>Class: {data.class}</p>
-              <p>Subjects: {data.subjects.join(", ")}</p>
-              <button onClick={() => handleDelete(index)}>Delete</button>
-              <a href={`edit/${data.id}`}>
-                <button>Edit</button>
-              </a>
-            </li>
-          </div>
-        ))}
-      </ul>
+      {studentslist.length > 0 ? (
+        <>
+          <h2> Submited Student list</h2>
+          <ul>
+            {studentslist.map((data: StudentProps, index: number) => (
+              <div className="card" key={index}>
+                <li>
+                  {data.profilePhoto ? (
+                    <div>
+                      <h4>Profile Photo:</h4>
+                      <img
+                        src={
+                          data.profilePhoto?.dataUrl ||
+                          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+                        }
+                        alt="ProfilePhoto"
+                        style={{ width: "200px" }}
+                      />
+                    </div>
+                  ) : null}
+                  <h3>Name: {`${data.firstName} ${data.lastName}`}</h3>
+                  <p>Email: {data.email}</p>
+                  <p>Age: {data.age}</p>
+                  <p>Class: {data.class}</p>
+                  <p>Subjects: {data.subjects.join(", ")}</p>
+                  <button onClick={() => handleDelete(index)}>Delete</button>
+                  <a href={`edit/${data.id}`}>
+                    <button>Edit</button>
+                  </a>
+                </li>
+              </div>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <p>
+          <h1>No data found</h1>
+        </p>
+      )}
     </>
   );
 };
