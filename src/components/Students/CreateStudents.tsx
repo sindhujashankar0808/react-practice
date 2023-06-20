@@ -4,6 +4,7 @@ import { StudentProps } from "../../types/Student/student.type";
 import {
   getLocalStorage,
   setLocalStorage,
+  validateForm,
 } from "../../utils/helpers/common.helpers";
 import {
   STU_INIT_STATE,
@@ -14,7 +15,6 @@ import { StudentForm } from "../Shared/Students/StudentForm";
 import { useNavigate } from "react-router-dom";
 import { ROUTERS } from "../../utils/constants/students/router.constants";
 import { STU_LOCAL_STORAGE_KEY } from "../../utils/constants/students/common.constants";
-import { validateForm } from "../../utils/helpers/validation.helpers";
 
 export const CreateStudents = () => {
   const navigate = useNavigate();
@@ -36,47 +36,64 @@ export const CreateStudents = () => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("come");
-    validateForm(formData);
+    const isValid = validateForm(formData);
     setTimeout(() => {
-      try {
-        const updatedFormData = [formData, ...studentsList];
-        setLocalStorage(STU_LOCAL_STORAGE_KEY, updatedFormData);
-        setStudentsList(updatedFormData);
-        navigate(ROUTERS.home);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setIsLoading(false);
+      if (isValid) {
+        try {
+          const updatedFormData = [formData, ...studentsList];
+          setLocalStorage(STU_LOCAL_STORAGE_KEY, updatedFormData);
+          setStudentsList(updatedFormData);
+          navigate(ROUTERS.home);
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setIsLoading(false);
+        }
       }
     }, 1000);
   };
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    console.log("come");
 
-    const { name, value, type, checked } = event.target;
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { target } = event;
+    const { type } = target;
+    if (type === "select-one") {
+      handelClassChange(target as HTMLSelectElement);
+    } else if (type === "file") {
+      handleFileChange(target as HTMLInputElement);
+    } else if (type === "checkbox") {
+      handleCheckbox(target as HTMLInputElement);
+    } else {
+      handleInputChange(target as HTMLInputElement);
+    }
+  };
+  const handleInputChange = (target: HTMLInputElement) => {
+    const { name, value } = target as HTMLInputElement;
     if (name === "age") {
       let ageValue = parseInt(value, 10);
       ageValue = Math.max(3, Math.min(ageValue, 20));
       setFormData({ ...formData, [name]: ageValue });
-    } else if (type === "checkbox") {
-      let updatedSubjects: string[];
-
-      if (checked) {
-        updatedSubjects = [...formData.subjects, value];
-      } else {
-        updatedSubjects = formData.subjects.filter(
-          (subject) => subject !== value
-        );
-      }
-
-      setFormData({ ...formData, subjects: updatedSubjects });
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
-  const handelClassChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = event.target;
+  const handleCheckbox = (target: HTMLInputElement) => {
+    const { checked, value } = target;
+    let updatedSubjects: string[];
+
+    if (checked) {
+      updatedSubjects = [...formData.subjects, value];
+    } else {
+      updatedSubjects = formData.subjects.filter(
+        (subject) => subject !== value
+      );
+    }
+
+    setFormData({ ...formData, subjects: updatedSubjects });
+  };
+  const handelClassChange = (target: HTMLSelectElement) => {
+    const { name, value } = target;
     const subject =
       value === "11" || value === "12"
         ? SUBJECTS_HIGHER_CLASS
@@ -85,9 +102,9 @@ export const CreateStudents = () => {
     setSelSubject(subject);
   };
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const selectedImage = event.target.files[0];
+  const handleFileChange = (target: HTMLInputElement) => {
+    if (target.files && target.files.length > 0) {
+      const selectedImage = target.files[0];
       const reader = new FileReader();
       reader.onload = (event) => {
         const profileImage = event.target?.result;
@@ -105,7 +122,9 @@ export const CreateStudents = () => {
   const resetForm = () => {
     setFormData({ ...STU_INIT_STATE });
   };
-
+  if (isLoading) {
+    return <div className="loader"></div>;
+  }
   return (
     <div>
       {formData && (
@@ -115,11 +134,9 @@ export const CreateStudents = () => {
             setFormData(updatedValue)
           }
           selSubject={selSubject}
-          onSubmit={handleSubmit}
+          onClick={handleSubmit}
           resetForm={resetForm}
-          onChange={handleChange}
-          handelClassChange={handelClassChange}
-          handleFileChange={handleFileChange}
+          handleChange={handleChange}
           isCreatePage={true}
         />
       )}

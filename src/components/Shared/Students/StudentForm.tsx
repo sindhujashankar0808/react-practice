@@ -1,23 +1,15 @@
-import { useLocation } from "react-router-dom";
-
 export const StudentForm = (props: any) => {
-  // const location = useLocation();
-  // const isCreatePage = location.pathname.includes("create");
   const {
-    handleSubmit,
+    onClick,
     resetForm,
     formData,
     selSubject,
     handleChange,
-    handelClassChange,
-    handleFileChange,
     isCreatePage,
   } = props;
-  const { handleInputChange, handleUpdate, selectedSub } = props;
-
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={onClick}>
         <div style={{ textAlign: "center" }}>
           {isCreatePage ? <h2>Create Students List</h2> : <h2>Edit Student</h2>}
         </div>
@@ -55,12 +47,23 @@ export const StudentForm = (props: any) => {
         </div>
         <br />
         <div>
+          <label htmlFor="email">Email: &nbsp;&nbsp;</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+          />
+        </div>
+        <br />
+        <div>
           <label htmlFor="class">Class:</label>
           <select
             name="class"
             id="class"
             value={formData.class}
-            onChange={handelClassChange}
+            onChange={handleChange}
           >
             <option value="">--Select Class--</option>
             {[...Array(12)].map((_, index) => (
@@ -91,7 +94,7 @@ export const StudentForm = (props: any) => {
         )}
         <div>
           <label htmlFor="profilePhoto">Profile Photo:</label>
-          <input type="file" name="profilePhoto" onChange={handleFileChange} />
+          <input type="file" name="profilePhoto" onChange={handleChange} />
         </div>
         <br />
         {isCreatePage ? (

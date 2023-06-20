@@ -1,9 +1,10 @@
-import { ChangeEvent, SetStateAction, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { StudentProps } from "../../types/Student/student.type";
 import { StudentForm } from "../Shared/Students/StudentForm";
 import {
   getLocalStorage,
   setLocalStorage,
+  validateForm,
 } from "../../utils/helpers/common.helpers";
 import { STU_LOCAL_STORAGE_KEY } from "../../utils/constants/students/common.constants";
 import { useNavigate, useParams } from "react-router-dom";
@@ -21,25 +22,9 @@ export const EditStudent = () => {
   const [profilePhotoFile, setProfilePhotoFile] = useState<File | null>(null);
 
   useEffect(() => {
-    const studentsList: StudentProps[] | null = getLocalStorage(
-      STU_LOCAL_STORAGE_KEY
-    );
-
-    if (studentsList && id) {
-      const filteredStu = studentsList.filter(
-        (student) => student.id === Number(id)
-      );
-      if (filteredStu.length > 0) {
-        setCurrentStu(filteredStu[0]);
-        setSelectedSub(
-          filteredStu[0].class === "12"
-            ? SUBJECTS_HIGHER_CLASS
-            : SUBJECTS_MIDDLE_CLASS
-        );
-        setProfilePhotoFile(filteredStu[0].profilePhoto);
-      }
-    }
+    editData();
   }, [id]);
+
   const handleFileChange = (file?: File) => {
     if (file) {
       const selectedImage = file;
@@ -112,25 +97,49 @@ export const EditStudent = () => {
 
   const handleUpdate = (event: React.FormEvent) => {
     event.preventDefault();
-
+    const isValid = validateForm(currentStu);
     const students = getLocalStorage(STU_LOCAL_STORAGE_KEY);
-    if (students) {
-      const updatedStudents = [...students];
-      const studentIndex = updatedStudents.findIndex(
-        (student) => student.id === Number(id)
-      );
-      if (studentIndex !== -1) {
-        updatedStudents[studentIndex] = {
-          ...currentStu,
-          profilePhotoFile: profilePhotoFile,
-        };
-        setLocalStorage(STU_LOCAL_STORAGE_KEY, updatedStudents);
-        navigate("/");
+    if (isValid) {
+      if (students) {
+        const updatedStudents = [...students];
+        const studentIndex = updatedStudents.findIndex(
+          (student) => student.id === Number(id)
+        );
+        if (studentIndex !== -1) {
+          updatedStudents[studentIndex] = {
+            ...currentStu,
+            profilePhotoFile: profilePhotoFile,
+          };
+          setLocalStorage(STU_LOCAL_STORAGE_KEY, updatedStudents);
+          navigate("/");
+        }
       }
     }
   };
+  const editData = () => {
+    const studentsList: StudentProps[] | null = getLocalStorage(
+      STU_LOCAL_STORAGE_KEY
+    );
+
+    if (studentsList && id) {
+      const filteredStu = studentsList.filter(
+        (student) => student.id === Number(id)
+      );
+      if (filteredStu.length > 0) {
+        setCurrentStu(filteredStu[0]);
+        setSelectedSub(
+          filteredStu[0].class === "12"
+            ? SUBJECTS_HIGHER_CLASS
+            : SUBJECTS_MIDDLE_CLASS
+        );
+        setProfilePhotoFile(filteredStu[0].profilePhoto);
+      }
+    }
+  };
+
   const resetForm = () => {
     setCurrentStu({ ...STU_INIT_STATE });
+    editData();
   };
   return (
     <div>
@@ -141,11 +150,11 @@ export const EditStudent = () => {
             updatedValue: React.SetStateAction<StudentProps | null>
           ) => setCurrentStu(updatedValue)}
           selSubject={selectedSub}
-          onSubmit={handleUpdate}
-          onChange={handleInputChange}
+          onClick={handleUpdate}
+          handleChange={handleInputChange}
           handleFileChange={handleFileChange}
           resetForm={resetForm}
-          // isCreatePage={false}
+          currentStu={currentStu}
         />
       )}
     </div>
