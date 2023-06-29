@@ -146,15 +146,14 @@ export const EditStudent = () => {
       {currentStu && (
         <StudentForm
           formData={currentStu}
-          updatedFormData={(
-            updatedValue: React.SetStateAction<StudentProps | null>
-          ) => setCurrentStu(updatedValue)}
+          // updatedFormData={(
+          //   updatedValue: React.SetStateAction<StudentProps | null>
+          // ) => setCurrentStu(updatedValue)}
           selSubject={selectedSub}
           onClick={handleUpdate}
           handleChange={handleInputChange}
-          handleFileChange={handleFileChange}
           resetForm={resetForm}
-          currentStu={currentStu}
+          isCreatePage={false}
         />
       )}
     </div>

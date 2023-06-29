@@ -54,8 +54,11 @@ export const CreateStudents = () => {
   };
 
   const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    actionFrom: string
   ) => {
+    console.log(actionFrom);
+
     const { target } = event;
     const { type } = target;
     if (type === "select-one") {
@@ -130,13 +133,13 @@ export const CreateStudents = () => {
       {formData && (
         <StudentForm
           formData={formData}
-          updatedFormData={(updatedValue: React.SetStateAction<StudentProps>) =>
-            setFormData(updatedValue)
-          }
+          // updatedFormData={(updatedValue: React.SetStateAction<StudentProps>) =>
+          //   setFormData(updatedValue)
+          // }
           selSubject={selSubject}
           onClick={handleSubmit}
           resetForm={resetForm}
-          handleChange={handleChange}
+          handleChange={(e, actionFrom: string) => handleChange(e, actionFrom)}
           isCreatePage={true}
         />
       )}

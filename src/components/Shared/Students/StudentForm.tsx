@@ -1,4 +1,17 @@
-export const StudentForm = (props: any) => {
+import { ChangeEvent } from "react";
+import { StudentProps } from "../../../types/Student/student.type";
+
+export const StudentForm = (props: {
+  onClick: (e: React.FormEvent) => void;
+  resetForm: () => void;
+  formData: StudentProps;
+  selSubject: string[];
+  handleChange: (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    actionFrom: string
+  ) => void;
+  isCreatePage: boolean;
+}) => {
   const {
     onClick,
     resetForm,
@@ -20,7 +33,7 @@ export const StudentForm = (props: any) => {
             id="firstName"
             name="firstName"
             value={formData.firstName}
-            onChange={handleChange}
+            onChange={(e) => handleChange(e, "firstName")}
           />
         </div>
         <br />
@@ -31,7 +44,7 @@ export const StudentForm = (props: any) => {
             id="lastName"
             name="lastName"
             value={formData.lastName}
-            onChange={handleChange}
+            onChange={(e) => handleChange(e, "lastName")}
           />
         </div>
         <br />
@@ -42,7 +55,7 @@ export const StudentForm = (props: any) => {
             id="age"
             name="age"
             value={formData.age}
-            onChange={handleChange}
+            onChange={(e) => handleChange(e, "age")}
           />
         </div>
         <br />
@@ -53,7 +66,7 @@ export const StudentForm = (props: any) => {
             id="email"
             name="email"
             value={formData.email}
-            onChange={handleChange}
+            onChange={(e) => handleChange(e, "email")}
           />
         </div>
         <br />
@@ -63,7 +76,7 @@ export const StudentForm = (props: any) => {
             name="class"
             id="class"
             value={formData.class}
-            onChange={handleChange}
+            onChange={(e) => handleChange(e, "class")}
           >
             <option value="">--Select Class--</option>
             {[...Array(12)].map((_, index) => (
@@ -84,7 +97,7 @@ export const StudentForm = (props: any) => {
                     name="subjects"
                     value={subject}
                     checked={formData.subjects.includes(subject)}
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, "subjects")}
                   />
                   {subject}
                 </label>
@@ -94,7 +107,11 @@ export const StudentForm = (props: any) => {
         )}
         <div>
           <label htmlFor="profilePhoto">Profile Photo:</label>
-          <input type="file" name="profilePhoto" onChange={handleChange} />
+          <input
+            type="file"
+            name="profilePhoto"
+            onChange={(e) => handleChange(e, "file")}
+          />
         </div>
         <br />
         {isCreatePage ? (
